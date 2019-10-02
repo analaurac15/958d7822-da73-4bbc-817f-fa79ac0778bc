@@ -9,11 +9,26 @@ class Cashflow(object):
     
     Attributes: 
         * amount - monetary amount at time t.
-        * t - integer representing time. 
+        * t - integer representing time.
         
     Methods:
         * present_value(self, interest_rate) - returns the present value of the cashfow given a interest-rate.
     """
+
+
+    def __init__(self, amount, t):
+        self.amount = amount
+        self.t = t
+
+    def present_value(self, interest_rate):
+        self.interest_rate = interest_rate
+
+    def value_at(self, t, interest_rate):
+        d_t = t - self.t
+        return self.amount * (1 + interest_rate) ** d_t
+
+    def present_value(self, interest_rate):
+        return self.value_at(t = 0, interest_rate = interest_rate)
 
 
 class InvestmentProject(object):
@@ -43,9 +58,18 @@ class InvestmentProject(object):
         :return: matplotlib figure object.
         """
         # TODO: implement plot method
-        raise NotImplementedError
+        if show:
+            DF = pd.DataFrame(self.cashflows)
+            plot = DF.plot.bar(x = 't', y = ['amount'], stacked = True)
+            figure = plot.get_figure()
+        else:
+            DF = pd.DataFrame(self.cashflows)
+            plot = DF.plot.bar(x = 't', y = ['amount'], stacked = True)
+            figure = plot.get_figure()
+            plt.show()
+            return figure
 
-
+    @property
     def net_present_value(self, interest_rate=None):
         """ Net Present Value
         Calculate the net-present value of a list of cashflows.
@@ -53,7 +77,9 @@ class InvestmentProject(object):
         :return: a number (currency) representing the net-present value.
         """
         # TODO: implement net_present_value method
-        raise NotImplementedError
+        NPV = np.NPV(interest_rate, [self.cashflows])
+        return NPV
+
 
     def equivalent_annuity(self, interest_rate=None):
         """ Equivalent Annuity
@@ -62,7 +88,7 @@ class InvestmentProject(object):
         :return: a number (currency) representing the equivalent annuity.
         """
         # TODO: implement equivalent_annuity methdo
-        raise NotImplementedError
+        c = (interest_rate*self.net_present_value)/(1-(1+interest_rate)**self.t)
 
     def describe(self):
         return {
